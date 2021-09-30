@@ -1,5 +1,6 @@
 from PriorityQueue import PriorityQueue
 from State import State
+from Search import Search
 
 def turn_state_into_array(init):
   state_array = [0 for i in range(9)]
@@ -20,60 +21,65 @@ def is_solvable(init):
 
   return cont%2 == 0
 
-def gen_children(state, children):
-  i, j = state.get_empty_space()
-
-  if i < 2:
-    s = State(state)
-    s.set_parent(state)
-    s.move_down(i, j)
-
-    if not s.compare(state):
-      children.append(s)
-
-  if i > 0:
-    s = State(state)
-    s.set_parent(state)
-    s.move_up(i, j)
-
-    if not s.compare(state):
-      children.append(s)
-  
-  if j < 2:
-    s = State(state)
-    s.set_parent(state)
-    s.move_right(i, j)
-
-    if not s.compare(state):
-      children.append(s)
-
-  if j > 0:
-    s = State(state)
-    s.set_parent(state)
-    s.move_left(i, j)
-
-    if not s.compare(state):
-      children.append(s)
-
 def print_path(state):
-  if state != None:
+  if state.parent != None:
 	  print_path(state.parent)
-  state.print_state()  
+  state.print_state()
 
-def main():
+def menu(state):
+  print ("Input 1 - input a state\nInput 2 - generate a random state\n")
+  choice = int(input())
+  if choice == 1:
+    state.input_state()
+  elif choice == 2:
+    state.gen_random_state()
+  else:
+    menu(state)
+
+def print_result(state, opened_left, visited):
+  print_path(state)
+  print('Number of states left as opened: ' + str(opened_left))
+  print('Number of visited states: ' + str(len(visited)))
+  print("\n--------------------------------------------------------------------------------------")
+
+def main(): 
   init_state = State()
+  menu(init_state)
+  
   goal_state = State()
-  init_state.gen_random_state()
   goal_state.gen_goal_state()
 
-  print('Initial')
+  print('Initial state')
   init_state.print_state()
-    
+  print('Goal state')
+  goal_state.print_state()
 
-#  goal_state = State()
-#  goal_state.gen_goal_state()
-#  print('Goal')
-#  goal_state.print_state()
+  print('Is solvable: ' + str(is_solvable(init_state)))
+  print("\n--------------------------------------------------------------------------------------")
+
+  visited = []
+
+  if is_solvable(init_state):
+    s = Search()
+  
+    print("\nA* with h1 (sum of pieces out of place):\n")
+    state, opened_left = s.a_star(init_state, goal_state, visited)
+    print_result(state, opened_left, visited)
+
+    print("\nA* with h2 (Euclidean distance):\n")
+    state, opened_left = s.a_star_h2(init_state, goal_state, visited)
+    print_result(state, opened_left, visited)
+    
+    print("\nGreedy with h3 (Manhattan distance):\n")
+    state, opened_left = s.greedy(init_state, goal_state, visited)
+    print_result(state, opened_left, visited)
+    
+    print("\nBFS:\n")
+    state, opened_left = s.bfs(init_state, goal_state, visited)
+    print_result(state, opened_left, visited)
+
+  else:
+    print("\nNot solvable. Initial state and goal state are not in the same connected component.")
 
 if __name__ == "__main__":
 	main()
