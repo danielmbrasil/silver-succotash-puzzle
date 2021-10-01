@@ -1,5 +1,5 @@
 from State import State
-from PriorityQueue import PriorityQueue
+from PQueue import PQueue
 import copy
 
 class Search:
@@ -7,33 +7,37 @@ class Search:
     i, j = state.get_empty_space()
 
     if i < 2:
-      s = State(state)
+      s = State(copy.deepcopy(state))
       s.set_parent(state)
       s.move_down(i, j)
+      s.calc_id()
 
       if not s.compare(state):
         children.append(s)
 
     if i > 0:
-      s = State(state)
+      s = State(copy.deepcopy(state))
       s.set_parent(state)
       s.move_up(i, j)
+      s.calc_id()
 
       if not s.compare(state):
         children.append(s)
     
     if j < 2:
-      s = State(state)
+      s = State(copy.deepcopy(state))
       s.set_parent(state)
       s.move_right(i, j)
+      s.calc_id()
 
       if not s.compare(state):
         children.append(s)
 
     if j > 0:
-      s = State(state)
+      s = State(copy.deepcopy(state))
       s.set_parent(state)
       s.move_left(i, j)
+      s.calc_id()
 
       if not s.compare(state):
         children.append(s)
@@ -65,14 +69,11 @@ class Search:
         opened.extend(children) 
     return None, None
 
-  def greedy(self, init_state, goal_state, visited):
+  def greedy_h3(self, init_state, goal_state, visited):
     visited.clear()
     children = []
-    
-    init_state.calc_h3(goal_state)
-    init_state.set_fn(init_state.get_h3())
 
-    q = PriorityQueue()
+    q = PQueue()
     q.push(init_state)
 
     while not q.is_empty():
@@ -98,17 +99,12 @@ class Search:
           q.push(c)
     return None, None
 
-  def a_star(self, init_state, goal_state, visited):
+  def a_star_h1(self, init_state, goal_state, visited):
     visited.clear()
     children = []
-    
-    init_state.calc_gn()
-    init_state.calc_h1(goal_state)
-    init_state.set_fn(init_state.get_gn() + init_state.get_h1())
 
-    q = PriorityQueue()
+    q = PQueue()
     q.push(init_state)
-
     while not q.is_empty():
       s = q.pop()
 
@@ -137,11 +133,7 @@ class Search:
     visited.clear()
     children = []
 
-    init_state.calc_gn()
-    init_state.calc_h2(goal_state)
-    init_state.set_fn(init_state.get_gn() + init_state.get_h2())
-
-    q = PriorityQueue()
+    q = PQueue()
     q.push(init_state)
     
     while not q.is_empty():

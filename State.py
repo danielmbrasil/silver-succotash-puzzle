@@ -3,14 +3,18 @@ import random
 import math
 
 # Def dict to final state positions
+#   0 1 2
+# 0 1 2 3
+# 1 4 5 6
+# 2 7 8 9
 indexes = {
   '0': (2, 2),
   '1': (0, 0),
-  '2': (1, 0),
-  '3': (2, 0),
-  '4': (0, 1),
+  '2': (0, 1),
+  '3': (0, 2),
+  '4': (1, 0),
   '5': (1, 1),
-  '6': (2, 1),
+  '6': (1, 2),
   '7': (2, 0),
   '8': (2, 1)
 }
@@ -22,6 +26,7 @@ class State:
     self.h1 = 0
     self.h2 = 0
     self.h3 = 0
+    self.id = '' 
 
     if self.parent == None:
       self.matrix =  [ [ 0 for i in range(3) ] for j in range(3) ]
@@ -31,6 +36,9 @@ class State:
   def get_parent(self):
     return self.parent
   
+  def get_id(self):
+      return self.id
+
   def set_parent(self, parent):
     self.parent = parent
 
@@ -41,7 +49,7 @@ class State:
     self.fn = fn
 
   def get_gn(self):
-    return self.gn
+    return self.gn - 1
 
   def set_gn(self, value):
     self.gn = value
@@ -55,6 +63,11 @@ class State:
   def get_h3(self):
     return self.h3
 
+  def calc_id(self):
+    for i in range(3):
+      for j in range(3):
+        self.id += str(self.matrix[i][j])
+
   def get_empty_space(self):
     for i in range(3):
       for j in range(3):
@@ -64,6 +77,7 @@ class State:
   def input_state(self):
     for i in range(3):
       self.matrix[i] = [int(j) for j in input().strip().split(" ")]
+    self.calc_id()
 
   def gen_random_state(self):
     blocks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -72,12 +86,14 @@ class State:
     for i in range(3):
       for j in range(3):
         self.matrix[i][j] = blocks.pop()
+    self.calc_id()
 
   def gen_goal_state(self):
     blocks = [1, 2, 3, 4, 5, 6, 7, 8, 0]
     for i in range(3):
       for j in range(3):
         self.matrix[i][j] = blocks.pop(0)
+    self.calc_id()
 
   def print_state(self):
     for i in range(3):
@@ -106,12 +122,7 @@ class State:
     self.matrix[i][j-1] = 0
 
   def compare(self, other):
-    for i in range(3):
-      for j in range(3):
-        if self.matrix[i][j] != other.matrix[i][j]:
-          return False
-    
-    return True
+    return self.id == other.id
 
   def calc_gn(self):
     if self.parent != None:
@@ -132,7 +143,7 @@ class State:
         goal_j = i_j[1]
         sum += abs(i - goal_i) + abs(goal_j - j)
     self.h2 = sum
-  
+
   def calc_h3(self, goal_state):
     sum = 0
     for i in range(3):

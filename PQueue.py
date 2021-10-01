@@ -1,4 +1,4 @@
-class PriorityQueue:
+class PQueue:
   def __init__(self) -> None:
     self.queue = []
 

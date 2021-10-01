@@ -1,4 +1,3 @@
-from PriorityQueue import PriorityQueue
 from State import State
 from Search import Search
 
@@ -31,8 +30,18 @@ def menu(state):
   choice = int(input())
   if choice == 1:
     state.input_state()
+    is_solvable_var =  is_solvable(state)
+    if not is_solvable_var:
+      print('\nIt is not solvable\n')
+      menu(state)
+
   elif choice == 2:
     state.gen_random_state()
+    is_solvable_var = is_solvable(state)
+    while (not is_solvable_var):
+      state.gen_random_state()
+      is_solvable_var = is_solvable(state)
+    
   else:
     menu(state)
 
@@ -53,8 +62,7 @@ def main():
   init_state.print_state()
   print('Goal state')
   goal_state.print_state()
-
-  print('Is solvable: ' + str(is_solvable(init_state)))
+  
   print("\n--------------------------------------------------------------------------------------")
 
   visited = []
@@ -63,20 +71,21 @@ def main():
     s = Search()
   
     print("\nA* with h1 (sum of pieces out of place):\n")
-    state, opened_left = s.a_star(init_state, goal_state, visited)
+    state, opened_left = s.a_star_h1(init_state, goal_state, visited)
     print_result(state, opened_left, visited)
 
     print("\nA* with h2 (Euclidean distance):\n")
     state, opened_left = s.a_star_h2(init_state, goal_state, visited)
     print_result(state, opened_left, visited)
-    
+   
     print("\nGreedy with h3 (Manhattan distance):\n")
-    state, opened_left = s.greedy(init_state, goal_state, visited)
+    state, opened_left = s.greedy_h3(init_state, goal_state, visited)
     print_result(state, opened_left, visited)
     
-    print("\nBFS:\n")
-    state, opened_left = s.bfs(init_state, goal_state, visited)
-    print_result(state, opened_left, visited)
+    if int(input("Are you sure you want to run BFS?\n 1 for yes | 0 for no\n")):
+      print("\nBFS:\n")
+      state, opened_left = s.bfs(init_state, goal_state, visited)
+      print_result(state, opened_left, visited)
 
   else:
     print("\nNot solvable. Initial state and goal state are not in the same connected component.")
